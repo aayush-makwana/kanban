@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PlusIcon from '../icons/PlusIcon'
 import { Column, ID, Task } from '../types'
 import ColumnContainer from './ColumnContainer'
@@ -16,14 +16,22 @@ import { arrayMove, SortableContext } from '@dnd-kit/sortable'
 import { createPortal } from 'react-dom'
 import TaskCard from './TaskCard'
 
+const INITIAL_COLUMNS = [
+  { id: 5751, title: 'Not Started' },
+  { id: 2780, title: 'In Progress' },
+  { id: 5375, title: 'Done' }
+]
+
+const INITIAL_TASKS = [{ id: 6315, columnId: 5751, content: 'Initial Task' }]
+
 const KanbanBoard = () => {
-  const [columns, setColumns] = useState<Column[]>([])
-  const columnsIds = useMemo(() => columns.map(column => column.id), [columns])
-
-  const [tasks, setTasks] = useState<Task[]>([])
-
+  const [columns, setColumns] = useState<Column[]>(INITIAL_COLUMNS)
+  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
   const [activeColumn, setActiveColumn] = useState<Column | null>(null)
   const [activeTask, setActiveTask] = useState<Task | null>(null)
+  const [isFirstRender, setIsFirstRender] = useState(true)
+
+  const columnsIds = useMemo(() => columns.map(column => column.id), [columns])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -32,6 +40,38 @@ const KanbanBoard = () => {
       }
     })
   )
+
+  useEffect(() => {
+    // Load data on first render
+    if (isFirstRender) {
+      try {
+        const savedColumns = localStorage.getItem('kanban-columns')
+        const savedTasks = localStorage.getItem('kanban-tasks')
+
+        // Load saved data if it exists
+        if (savedColumns) {
+          const parsedColumns = JSON.parse(savedColumns) as Column[]
+          setColumns(parsedColumns)
+        }
+        if (savedTasks) {
+          const parsedTasks = JSON.parse(savedTasks) as Task[]
+          setTasks(parsedTasks)
+        }
+        setIsFirstRender(false)
+      } catch (error) {
+        console.error('Error loading data from localStorage:', error)
+      }
+      return
+    }
+
+    // Save data on subsequent updates
+    try {
+      localStorage.setItem('kanban-columns', JSON.stringify(columns))
+      localStorage.setItem('kanban-tasks', JSON.stringify(tasks))
+    } catch (error) {
+      console.error('Error saving data to localStorage:', error)
+    }
+  }, [columns, tasks, isFirstRender])
 
   const createNewColumn = () => {
     const columnToAdd: Column = {
