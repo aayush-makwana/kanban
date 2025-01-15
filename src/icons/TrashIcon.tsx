@@ -1,4 +1,5 @@
-import { SVGProps } from 'react'
+// React Imports
+import type { SVGProps } from 'react'
 
 const TrashIcon = (props: SVGProps<SVGSVGElement>) => {
   return (

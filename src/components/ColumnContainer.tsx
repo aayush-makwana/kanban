@@ -1,9 +1,18 @@
-import { SortableContext, useSortable } from '@dnd-kit/sortable'
-import TrashIcon from '../icons/TrashIcon'
-import { Column, ID, Task } from '../types'
-import { CSS } from '@dnd-kit/utilities'
+// React Imports
 import { useMemo, useState } from 'react'
+
+// Third-party Imports
+import { SortableContext, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Types Imports
+import type { Column, ID, Task } from '../types'
+
+// Icons Imports
+import TrashIcon from '../icons/TrashIcon'
 import PlusIcon from '../icons/PlusIcon'
+
+// Components Imports
 import TaskCard from './TaskCard'
 
 interface Props {
@@ -17,12 +26,16 @@ interface Props {
 }
 
 const ColumnContainer = (props: Props) => {
+  // Props
   const { column, updateColumn, deleteColumn, createTask, tasks, deleteTask, updateTask } = props
 
-  const tasksIds = useMemo(() => tasks.map(task => task.id), [tasks])
-
+  // States
   const [editMode, setEditMode] = useState(false)
 
+  // Memos
+  const tasksIds = useMemo(() => tasks.map(task => task.id), [tasks])
+
+  // Hooks
   const { attributes, listeners, setNodeRef, transition, transform, isDragging } = useSortable({
     id: column.id,
     data: {
@@ -32,6 +45,7 @@ const ColumnContainer = (props: Props) => {
     disabled: editMode
   })
 
+  // Vars
   const style = {
     transition,
     transform: CSS.Transform.toString(transform)
@@ -42,8 +56,8 @@ const ColumnContainer = (props: Props) => {
       <div
         ref={setNodeRef}
         style={style}
-        className='bg-columnBackgroundColor opacity-40 border-2 border-rose-500 w-[350px] h-[600px] max-h-[600px] rounded-md flex flex-col'
-      ></div>
+        className='bg-columnBackgroundColor opacity-40 border-2 border-rose-500 w-80 sm:w-[350px] h-[500px] sm:h-[600px] max-h-[500px] sm:max-h-[600px] rounded-md flex flex-col'
+      />
     )
   }
 
@@ -51,7 +65,7 @@ const ColumnContainer = (props: Props) => {
     <div
       ref={setNodeRef}
       style={style}
-      className='bg-columnBackgroundColor w-[350px] h-[600px] max-h-[600px] rounded-md flex flex-col'
+      className='bg-columnBackgroundColor w-80 sm:w-[350px] h-[500px] sm:h-[600px] max-h-[500px] sm:max-h-[600px] rounded-md flex flex-col'
     >
       {/* Column Title */}
       <div
@@ -68,7 +82,7 @@ const ColumnContainer = (props: Props) => {
             <div className='text-md line-clamp-1'>{column.title}</div>
           ) : (
             <input
-              className='bg-black focus:border-rose-500 border rounded outline-none px-2'
+              className='bg-gray-950 focus:border-rose-500 border rounded outline-none px-2'
               value={column.title}
               onChange={e => {
                 updateColumn(column.id, e.target.value)

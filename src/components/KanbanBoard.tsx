@@ -1,38 +1,43 @@
+// React Imports
 import { useEffect, useMemo, useState } from 'react'
-import PlusIcon from '../icons/PlusIcon'
-import { Column, ID, Task } from '../types'
-import ColumnContainer from './ColumnContainer'
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  DragOverlay,
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors
-} from '@dnd-kit/core'
-import { arrayMove, SortableContext } from '@dnd-kit/sortable'
 import { createPortal } from 'react-dom'
+
+// Third-party Imports
+import { arrayMove, SortableContext } from '@dnd-kit/sortable'
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import type { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core'
+
+// Types Imports
+import type { Column, ID, Task } from '../types'
+
+// Icons Imports
+import PlusIcon from '../icons/PlusIcon'
+
+// Components Imports
+import ColumnContainer from './ColumnContainer'
 import TaskCard from './TaskCard'
 
-const INITIAL_COLUMNS = [
+// Vars
+const INITIAL_COLUMNS: Column[] = [
   { id: 5751, title: 'Not Started' },
   { id: 2780, title: 'In Progress' },
   { id: 5375, title: 'Done' }
 ]
 
-const INITIAL_TASKS = [{ id: 6315, columnId: 5751, content: 'Initial Task' }]
+const INITIAL_TASKS: Task[] = [{ id: 6315, columnId: 5751, content: 'Initial Task' }]
 
 const KanbanBoard = () => {
+  // States
   const [columns, setColumns] = useState<Column[]>(INITIAL_COLUMNS)
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
   const [activeColumn, setActiveColumn] = useState<Column | null>(null)
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [isFirstRender, setIsFirstRender] = useState(true)
 
+  // Memos
   const columnsIds = useMemo(() => columns.map(column => column.id), [columns])
 
+  // Sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -41,6 +46,7 @@ const KanbanBoard = () => {
     })
   )
 
+  // Effects
   useEffect(() => {
     // Load data on first render
     if (isFirstRender) {
@@ -73,6 +79,7 @@ const KanbanBoard = () => {
     }
   }, [columns, tasks, isFirstRender])
 
+  // Functions
   const createNewColumn = () => {
     const columnToAdd: Column = {
       id: generateId(),
@@ -107,6 +114,7 @@ const KanbanBoard = () => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id))
   }
 
+  // Drag & Drop Handlers
   const onDragStart = (event: DragStartEvent) => {
     if (event.active.data.current?.type === 'Column') {
       setActiveColumn(event.active.data.current.column)
@@ -177,7 +185,7 @@ const KanbanBoard = () => {
   }
 
   return (
-    <div className='m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-10'>
+    <div className='m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden p-10'>
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragOver={onDragOver}>
         <div className='m-auto flex items-start gap-4'>
           <div className='flex items-start gap-4'>
@@ -198,7 +206,7 @@ const KanbanBoard = () => {
           </div>
           <button
             onClick={() => createNewColumn()}
-            className='h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg bg-mainBackgroundColor border-2 border-columnBackgroundColor p-4 ring-rose-500 hover:ring-2 flex items-center gap-2'
+            className='h-[60px] w-80 sm:w-[350px] min-w-80 sm:min-w-[350px] cursor-pointer rounded-lg bg-mainBackgroundColor border-2 border-columnBackgroundColor p-4 ring-rose-500 hover:ring-2 flex items-center gap-2'
           >
             <PlusIcon className='text-2xl' />
             Add Column
